@@ -1,0 +1,15 @@
+{
+  "name": "Global Mindscape Formula Calculator",
+  "short_name": "GM Formulas",
+  "description": "Internal formula calculator — Sales Velocity, the Audit Engine, and CAC/LTV.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10233F",
+  "theme_color": "#10233F",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

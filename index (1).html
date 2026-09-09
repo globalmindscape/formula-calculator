@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GM Formulas">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#10233F">
+<meta name="description" content="Global Mindscape internal formula calculator — Sales Velocity, the Audit engine, and CAC/LTV.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Internal Formula Calculator — Global Mindscape</title>
+<style>
+  :root{
+    --font-display:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --navy:#10233F;
+    --navy-soft:#1A345C;
+    --sage:#3F6E55;
+    --gold:#B8863E;
+    --paper:#FBFAF7;
+    --hair:#D8D3C6;
+    --ink:#222222;
+    --grey:#6B6B6B;
+    --warn:#8A2E1F;
+    --warn-bg:#F6E9E4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+
+  header.top{
+    background:var(--navy);
+    color:#fff;
+    padding:22px 20px 20px;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .wordmark{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    color:var(--gold);
+    text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-style:italic;
+    font-weight:500;
+    font-size:22px;
+    margin:4px 0 0;
+    color:#fff;
+  }
+  .sub{
+    font-size:12.5px;
+    color:#B8C2D4;
+    margin-top:4px;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    padding:14px 20px 0;
+    background:var(--navy);
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    appearance:none;
+    border:none;
+    background:transparent;
+    color:#B8C2D4;
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:500;
+    padding:10px 4px 12px;
+    margin-right:18px;
+    border-bottom:3px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{
+    color:#fff;
+    border-bottom:3px solid var(--gold);
+    font-weight:600;
+  }
+
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:22px 18px 10px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .intro{
+    font-family:var(--font-display);
+    font-style:italic;
+    font-size:14.5px;
+    line-height:1.55;
+    color:var(--navy-soft);
+    border-left:3px solid var(--gold);
+    padding-left:14px;
+    margin:0 0 22px;
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-size:13px;
+    text-transform:none;
+    letter-spacing:0.02em;
+    color:var(--sage);
+    font-weight:600;
+    margin:0 0 14px;
+    border-bottom:1px solid var(--hair);
+    padding-bottom:10px;
+  }
+
+  label{
+    display:block;
+    font-size:12.5px;
+    color:var(--grey);
+    margin:12px 0 5px;
+    font-weight:500;
+  }
+  label:first-of-type{margin-top:0;}
+  input[type=number], select{
+    width:100%;
+    font-family:var(--font-body);
+    font-size:16px;
+    padding:10px 12px;
+    border:1px solid var(--hair);
+    border-radius:7px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  input[type=number]:focus, select:focus{
+    outline:2px solid var(--gold);
+    outline-offset:1px;
+  }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+
+  .result{
+    margin-top:18px;
+    background:var(--navy);
+    color:#fff;
+    border-radius:10px;
+    padding:20px 18px;
+  }
+  .result .big{
+    font-size:30px;
+    font-weight:700;
+    line-height:1.1;
+  }
+  .result .label{
+    font-size:12px;
+    color:#B8C2D4;
+    letter-spacing:0.03em;
+    margin-top:4px;
+  }
+  .result .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid rgba(255,255,255,0.15);
+  }
+  .result .grid .v{font-size:17px; font-weight:600;}
+  .result .grid .l{font-size:11px; color:#B8C2D4; margin-top:2px;}
+
+  .qgrid{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:10px 12px;
+    margin-top:2px;
+  }
+  .qgrid .qlabel{font-size:13px; color:var(--ink);}
+  .qgrid select{width:88px; padding:8px 8px;}
+
+  .friction-summary{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--paper);
+    border:1px solid var(--hair);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-top:16px;
+    font-size:13px;
+  }
+  .friction-summary .val{font-weight:700; color:var(--sage); font-size:16px;}
+
+  details{margin-top:14px;}
+  summary{
+    cursor:pointer;
+    font-size:12.5px;
+    color:var(--sage);
+    font-weight:600;
+  }
+  table.leak{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:12.5px;
+  }
+  table.leak th, table.leak td{
+    text-align:left;
+    padding:6px 4px;
+    border-bottom:1px solid var(--hair);
+  }
+  table.leak th{color:var(--grey); font-weight:500;}
+  table.leak td.num{text-align:right; font-variant-numeric:tabular-nums;}
+
+  .note{
+    font-size:11.5px;
+    color:var(--grey);
+    margin-top:14px;
+    line-height:1.5;
+  }
+  .note strong{color:var(--ink);}
+
+  .flag{
+    display:inline-block;
+    margin-top:10px;
+    background:var(--warn-bg);
+    color:var(--warn);
+    font-size:12px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:6px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--grey);
+    padding:26px 18px 10px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wordmark">Global Mindscape</div>
+  <h1>Internal Formula Calculator</h1>
+  <div class="sub">Sales Velocity · The Audit Engine · CAC &amp; LTV</div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="velocity">Sales Velocity</button>
+  <button class="tab-btn" data-tab="audit">Audit Engine</button>
+  <button class="tab-btn" data-tab="unit">CAC &amp; LTV</button>
+</nav>
+
+<main>
+
+  <!-- ===================== VELOCITY ===================== -->
+  <section class="panel active" id="panel-velocity">
+    <p class="intro">The industry-standard teaching formula. Useful for explaining what drives revenue speed. Not the formula used for client Rand figures in the Audit report — see the Audit Engine tab for that.</p>
+
+    <div class="card">
+      <h2>Inputs</h2>
+      <label for="v-o">Opportunities open right now (O)</label>
+      <input type="number" id="v-o" placeholder="e.g. 10" inputmode="decimal">
+
+      <div class="row2">
+        <div>
+          <label for="v-w">Win rate % (W)</label>
+          <input type="number" id="v-w" placeholder="e.g. 50" inputmode="decimal">
+        </div>
+        <div>
+          <label for="v-a">Avg deal size R (A)</label>
+          <input type="number" id="v-a" placeholder="e.g. 10000" inputmode="decimal">
+        </div>
+      </div>
+
+      <label for="v-l">Sales cycle length, days (L)</label>
+      <input type="number" id="v-l" placeholder="e.g. 20" inputmode="decimal">
+    </div>
+
+    <div class="result">
+      <div class="big" id="v-out">R0 / day</div>
+      <div class="label">Sales Velocity — (O × W × A) ÷ L</div>
+      <div class="grid">
+        <div><div class="v" id="v-month">R0</div><div class="l">Per month (× 30)</div></div>
+        <div><div class="v" id="v-year">R0</div><div class="l">Per year (× 365)</div></div>
+      </div>
+    </div>
+
+    <p class="note"><strong>Reminder:</strong> O here is a snapshot of open opportunities right now, not a monthly rate. If you're working from a monthly lead-flow number instead, use the Audit Engine tab, which is built for that.</p>
+  </section>
+
+  <!-- ===================== AUDIT ===================== -->
+  <section class="panel" id="panel-audit">
+    <p class="intro">The actual model behind every Sales Growth Audit report: Baseline → Optimal Capacity → Total Leak. Score the 15 questions below, or enter an average friction % directly if you already have it.</p>
+
+    <div class="card">
+      <h2>Client pipeline inputs</h2>
+      <label for="a-o">Average monthly opportunities (O)</label>
+      <input type="number" id="a-o" placeholder="e.g. 100" inputmode="decimal">
+
+      <div class="row2">
+        <div>
+          <label for="a-w">Win rate % (W)</label>
+          <input type="number" id="a-w" placeholder="e.g. 60" inputmode="decimal">
+        </div>
+        <div>
+          <label for="a-a">Avg deal size R (A)</label>
+          <input type="number" id="a-a" placeholder="e.g. 35000" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>15 diagnostic questions</h2>
+      <div class="qgrid" id="q-grid"></div>
+
+      <div class="friction-summary">
+        <span>Average friction across all 15</span>
+        <span class="val" id="avg-friction">0%</span>
+      </div>
+      <p class="note">A = 35% · B = 15% · C = 0% · D = 50%. These are Global Mindscape's own proprietary diagnostic risk-weights, not directly claimed by any external study. Already know the average? Skip this and use manual entry below.</p>
+
+      <details>
+        <summary>Enter average friction manually instead</summary>
+        <label for="a-manual">Average friction % (overrides the 15 questions above)</label>
+        <input type="number" id="a-manual" placeholder="e.g. 21" inputmode="decimal">
+      </details>
+    </div>
+
+    <div class="result">
+      <div class="big" id="a-leak">R0</div>
+      <div class="label">Total systemic annual revenue leak</div>
+      <div class="grid">
+        <div><div class="v" id="a-baseline">R0</div><div class="l">Baseline (current annual)</div></div>
+        <div><div class="v" id="a-optimal">R0</div><div class="l">Optimal capacity</div></div>
+        <div><div class="v" id="a-monthly">R0</div><div class="l">Leak per month</div></div>
+        <div><div class="v" id="a-frictionout">0%</div><div class="l">Average friction used</div></div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Per-question leak breakdown</summary>
+      <table class="leak">
+        <thead><tr><th>Question</th><th>Friction</th><th class="num">Annual leak (R)</th></tr></thead>
+        <tbody id="leak-body"></tbody>
+      </table>
+    </details>
+
+    <p class="note"><strong>Formula, in order:</strong> Baseline = O × 12 × W × A. Optimal Capacity = Baseline ÷ (1 − average friction). Total Leak = Optimal Capacity − Baseline. Per-question leak = (that question's friction ÷ sum of all 15 frictions) × Total Leak.</p>
+  </section>
+
+  <!-- ===================== UNIT ECONOMICS ===================== -->
+  <section class="panel" id="panel-unit">
+    <p class="intro">Whether the speed you're generating is actually profitable. A business can have fast Sales Velocity and still be losing money on every customer it catches.</p>
+
+    <div class="card">
+      <h2>Customer Acquisition Cost</h2>
+      <div class="row2">
+        <div>
+          <label for="u-spend">Total acquisition spend (R)</label>
+          <input type="number" id="u-spend" placeholder="e.g. 20000" inputmode="decimal">
+        </div>
+        <div>
+          <label for="u-newcust">New customers gained</label>
+          <input type="number" id="u-newcust" placeholder="e.g. 4" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Lifetime Value</h2>
+      <div class="row2">
+        <div>
+          <label for="u-rev">Avg revenue per customer / month (R)</label>
+          <input type="number" id="u-rev" placeholder="e.g. 2500" inputmode="decimal">
+        </div>
+        <div>
+          <label for="u-months">Avg customer lifespan (months)</label>
+          <input type="number" id="u-months" placeholder="e.g. 18" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <div class="result">
+      <div class="big" id="u-ratio">0 : 1</div>
+      <div class="label">LTV : CAC ratio — healthy is 3:1 or higher</div>
+      <div class="grid">
+        <div><div class="v" id="u-cac">R0</div><div class="l">CAC</div></div>
+        <div><div class="v" id="u-ltv">R0</div><div class="l">LTV</div></div>
+        <div><div class="v" id="u-payback">0 months</div><div class="l">CAC payback period</div></div>
+        <div><div class="v" id="u-verdict">—</div><div class="l">Verdict</div></div>
+      </div>
+    </div>
+
+    <p class="note">CAC = total spend ÷ new customers. LTV = revenue per customer per month × lifespan in months. Payback period = CAC ÷ monthly revenue per customer.</p>
+  </section>
+
+</main>
+
+<footer>Global Mindscape (Pty) Ltd · Internal use · Works offline once loaded</footer>
+
+<script>
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  const fmtR = n => 'R' + (isFinite(n) ? Math.round(n).toLocaleString('en-ZA') : '0');
+  const num = id => parseFloat(document.getElementById(id).value) || 0;
+
+  // ---------- VELOCITY ----------
+  function calcVelocity(){
+    const o=num('v-o'), w=num('v-w')/100, a=num('v-a'), l=num('v-l');
+    const v = l>0 ? (o*w*a)/l : 0;
+    document.getElementById('v-out').textContent = fmtR(v) + ' / day';
+    document.getElementById('v-month').textContent = fmtR(v*30);
+    document.getElementById('v-year').textContent = fmtR(v*365);
+  }
+  ['v-o','v-w','v-a','v-l'].forEach(id=>document.getElementById(id).addEventListener('input', calcVelocity));
+
+  // ---------- AUDIT ENGINE ----------
+  const FRICTION = {A:35, B:15, C:0, D:50};
+  const qGrid = document.getElementById('q-grid');
+  for(let i=1;i<=15;i++){
+    const label = document.createElement('div');
+    label.className='qlabel';
+    label.textContent = 'Question ' + i;
+    const sel = document.createElement('select');
+    sel.id = 'q'+i;
+    sel.innerHTML = '<option value="A">A — 35%</option><option value="B">B — 15%</option><option value="C" selected>C — 0%</option><option value="D">D — 50%</option>';
+    qGrid.appendChild(label);
+    qGrid.appendChild(sel);
+  }
+
+  function calcAudit(){
+    const frictions = [];
+    for(let i=1;i<=15;i++){
+      frictions.push(FRICTION[document.getElementById('q'+i).value]);
+    }
+    const sumFriction = frictions.reduce((a,b)=>a+b,0);
+    const avgFromQuestions = sumFriction/15;
+
+    const manual = document.getElementById('a-manual').value;
+    const avgFriction = manual !== '' ? parseFloat(manual) : avgFromQuestions;
+
+    document.getElementById('avg-friction').textContent = avgFromQuestions.toFixed(1)+'%';
+
+    const o=num('a-o'), w=num('a-w')/100, a=num('a-a');
+    const baseline = o*12*w*a;
+    const optimal = avgFriction < 100 ? baseline/(1-avgFriction/100) : baseline;
+    const leak = optimal - baseline;
+
+    document.getElementById('a-baseline').textContent = fmtR(baseline);
+    document.getElementById('a-optimal').textContent = fmtR(optimal);
+    document.getElementById('a-leak').textContent = fmtR(leak);
+    document.getElementById('a-monthly').textContent = fmtR(leak/12);
+    document.getElementById('a-frictionout').textContent = avgFriction.toFixed(1)+'%';
+
+    // per-question leak table (only meaningful when using the 15-question breakdown)
+    const tbody = document.getElementById('leak-body');
+    tbody.innerHTML = '';
+    if(sumFriction > 0){
+      frictions.forEach((f, idx)=>{
+        const qLeak = (f/sumFriction)*leak;
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>Q'+(idx+1)+'</td><td>'+f+'%</td><td class="num">'+fmtR(qLeak)+'</td>';
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = '<tr><td colspan="3">All questions scored C — no leak to distribute.</td></tr>';
+    }
+  }
+  document.querySelectorAll('#q-grid select, #a-o, #a-w, #a-a, #a-manual').forEach(el=>{
+    el.addEventListener('input', calcAudit);
+    el.addEventListener('change', calcAudit);
+  });
+
+  // ---------- CAC / LTV ----------
+  function calcUnit(){
+    const spend=num('u-spend'), newCust=num('u-newcust');
+    const rev=num('u-rev'), months=num('u-months');
+
+    const cac = newCust>0 ? spend/newCust : 0;
+    const ltv = rev*months;
+    const ratio = cac>0 ? ltv/cac : 0;
+    const payback = rev>0 ? cac/rev : 0;
+
+    document.getElementById('u-cac').textContent = fmtR(cac);
+    document.getElementById('u-ltv').textContent = fmtR(ltv);
+    document.getElementById('u-ratio').textContent = ratio.toFixed(1)+' : 1';
+    document.getElementById('u-payback').textContent = payback.toFixed(1)+' months';
+
+    const verdictEl = document.getElementById('u-verdict');
+    if(cac===0 || ltv===0){ verdictEl.textContent='—'; }
+    else if(ratio>=3){ verdictEl.textContent='Healthy'; }
+    else if(ratio>=1){ verdictEl.textContent='Tight'; }
+    else { verdictEl.textContent='Losing money'; }
+  }
+  ['u-spend','u-newcust','u-rev','u-months'].forEach(id=>document.getElementById(id).addEventListener('input', calcUnit));
+
+  // init
+  calcVelocity(); calcAudit(); calcUnit();
+
+  // ---------- Offline install support ----------
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    });
+  }
+</script>
+
+</body>
+</html>
